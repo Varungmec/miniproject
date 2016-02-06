@@ -37,7 +37,7 @@ service = build('books', 'v1', developerKey=api_key)
 #   search query ('android')
 # The method returns an apiclient.http.HttpRequest object that encapsulates
 # all information needed to make the request, but it does not call the API.
-request = service.volumes().list(source='public',projection='lite', q='network',maxResults=4)
+request = service.volumes().list(source='public',projection='lite', q='network',maxResults=2)
 # The execute() function on the HttpRequest object actually calls the API.
 # It returns a Python object built from the JSON response. You can print this
 # object or refer to the Books API documentation to determine its structure.
@@ -48,42 +48,45 @@ booksnames=[] #initialisong a list obj in python
 
 authorlist=[]
 k='%3A'
+
 # Accessing the response like a dict object with an 'items' key returns a list
 # of item objects (books). The item object is a dict object with a 'volumeInfo'
 # key. The volumeInfo object is a dict with keys 'title' and 'authors'.
 # print 'Found %d books:' % len(response['items'])
 for book in respon.get('items', []):
-  		#print 'Title: %s, Authors: %s' % ( book['volumeInfo']['title'],book['volumeInfo']['authors'])
-  		
-  		booksnames.append(book['volumeInfo']['title'])      #list appending in python
-  		authorlist.append(book['volumeInfo']['authors'])
-  		#print 'hello'
-  		#print "Value : %s" %  book.items()
-  		#print "Value : %s" %  book.keys()
-  		
+      #print 'Title: %s, Authors: %s' % ( book['volumeInfo']['title'],book['volumeInfo']['authors'])
+      
+      booksnames.append(book['volumeInfo']['title'])      #list appending in python
+      authorlist.append(book['volumeInfo']['authors'])
+      #print 'hello'
+      #print "Value : %s" %  book.items()
+      #print "Value : %s" %  book.keys()
+      
 for i in booksnames: #(for looping iin python )
- 	print i
- 
-for i in booksnames:
-	i=i.replace(" ","%20")
+  print i
+  #print urllib2.quote(i) 
+for p in booksnames:
+  url = ('https://ajax.googleapis.com/ajax/services/search/web'
+       '?v=1.0&q=%s' % urllib2.quote(p)+'%3Apdf&userip=USERS-IP-ADDRESS' ) #quote function to convert spaces and other things to url format
+  print url
+  request = urllib2.Request(
+        url, None)
 
-	
-	url = ('https://ajax.googleapis.com/ajax/services/search/web'
-       '?v=1.0&q=%s' % i+'%3Apdf&userip=USERS-IP-ADDRESS' )
-	print url
-	request = urllib2.Request(
-  		  url, None)
+  response = urllib2.urlopen(request)
+  #print response
+  i=0 
+  f=0
+  # Process the JSON string.
+  result = simplejson.load(response)
+  f=len(result['responseData']['results']) #results is a list
+  pprint.pprint(result)
+  while f>0:
+     #print 'Title: %s' % ( book['results']['title'])
+   #print 'hello'
+    print result['responseData']['results'][i]['url']
+    f=f-1
+    i=i+1
+  
+  
 
-	response = urllib2.urlopen(request)
-	print response
-# 	i=0	
-# 	# Process the JSON string.
-# 	result = simplejson.load(response)
-# 	f=len(result['responseData']['results'])
-# #pprint.pprint(result)
-# 	while f>2:
-#   	 #print 'Title: %s' % ( book['results']['title'])
-#  	 #print 'hello'
-# 		print result['responseData']['results'][f-1]['url']
-#  		f=f-1
 
